@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="15dp"
+            android:id="@+id/iv_select_child"
+            android:background="@drawable/circle_all" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/iv_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/ic_launcher_background" />
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/iv_detail"
+                    android:layout_marginLeft="4dp"
+                    android:id="@+id/tv_detail_content"
+                    android:text="@string/appbar_scrolling_view_behavior" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="4dp"
+                android:id="@+id/ll_cost"
+                android:layout_toRightOf="@id/iv_detail">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="250yuan"
+                    android:id="@+id/tv_price_child"
+                    android:layout_alignParentBottom="true"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginLeft="4dp"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="15dp"
+                        android:id="@+id/iv_subtract_child"
+                        android:background="@mipmap/iv_edit_subtract" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="15dp"
+                        android:text="2"
+                        android:id="@+id/tv_num_detail"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginRight="5dp"
+                        android:id="@+id/iv_add_child"
+                        android:background="@mipmap/iv_edit_add" />
+
+                </LinearLayout>
+
+
+            </RelativeLayout>
+
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>
