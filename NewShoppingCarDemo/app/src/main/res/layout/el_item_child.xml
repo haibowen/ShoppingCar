@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="70dp"
+    android:background="#F8F6F6"
+    android:orientation="vertical"
+    android:id="@+id/ll_shopping_detail">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        >
+        android:layout_height="70dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp">
 
         <ImageView
+            android:id="@+id/iv_select_child"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="15dp"
-            android:id="@+id/iv_select_child"
             android:background="@drawable/circle_all" />
 
         <RelativeLayout
@@ -23,79 +26,76 @@
 
             <ImageView
                 android:id="@+id/iv_detail"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/ic_launcher_background"
+                android:scaleType="centerCrop"
+                android:layout_centerVertical="true"/>
+
+
+            <TextView
+                android:id="@+id/tv_detail_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="centerCrop"
-                android:layout_marginLeft="12dp"
-                android:background="@drawable/ic_launcher_background" />
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/iv_detail"
-                    android:layout_marginLeft="4dp"
-                    android:id="@+id/tv_detail_content"
-                    android:text="@string/appbar_scrolling_view_behavior" />
+                android:layout_marginLeft="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_toRightOf="@id/iv_detail"
+                android:text="@string/appbar_scrolling_view_behavior" />
 
             <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_marginLeft="4dp"
                 android:id="@+id/ll_cost"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+
+                android:layout_marginLeft="4dp"
                 android:layout_toRightOf="@id/iv_detail">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="250yuan"
                     android:id="@+id/tv_price_child"
-                    android:layout_alignParentBottom="true"/>
-                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
-                    android:layout_marginLeft="4dp"
+                    android:text="250yuan" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginLeft="4dp"
                     android:gravity="center"
                     android:orientation="horizontal">
 
                     <ImageView
+                        android:id="@+id/iv_subtract_child"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="15dp"
-                        android:id="@+id/iv_subtract_child"
                         android:background="@mipmap/iv_edit_subtract" />
 
                     <TextView
+                        android:id="@+id/tv_num_detail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="15dp"
-                        android:text="2"
-                        android:id="@+id/tv_num_detail"/>
+                        android:text="2" />
 
                     <ImageView
+                        android:id="@+id/iv_add_child"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="15dp"
                         android:layout_marginRight="5dp"
-                        android:id="@+id/iv_add_child"
                         android:background="@mipmap/iv_edit_add" />
 
                 </LinearLayout>
-
-
             </RelativeLayout>
 
-
-
         </RelativeLayout>
-
     </LinearLayout>
-
 
 </LinearLayout>

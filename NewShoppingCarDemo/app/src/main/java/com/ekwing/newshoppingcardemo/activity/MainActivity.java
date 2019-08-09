@@ -1,115 +1,68 @@
 package com.ekwing.newshoppingcardemo.activity;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ekwing.newshoppingcardemo.R;
+import com.ekwing.newshoppingcardemo.adapter.LikeGoodsAdapter;
 import com.ekwing.newshoppingcardemo.adapter.ShoppingAdapter;
+import com.ekwing.newshoppingcardemo.bean.LikeGoodsBean;
 import com.ekwing.newshoppingcardemo.bean.ShoppingDataBean;
+import com.ekwing.newshoppingcardemo.helper.ItemLongClickMaskHelper;
 import com.ekwing.newshoppingcardemo.utils.Httputils;
+import com.ekwing.newshoppingcardemo.utils.LogUtil;
 import com.ekwing.newshoppingcardemo.utils.ToastUtil;
 import com.ekwing.newshoppingcardemo.view.RoundCornerDialog;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.gson.Gson;
+import com.gyf.immersionbar.ImmersionBar;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
-    private Toolbar tb_title;//标题栏
-    private ImageView iv_all_selet;//底部全选
-    private ImageView iv_select_all;//全选按钮
-    private TextView tv_price;//价钱
-    private Button bt_jiesuan;//结算
-    private Button bt_delete;//删除
-    private ExpandableListView el_list;//列表数据
-    private String result=null;
-    //模拟的购物车数据（实际开发中使用后台返回的数据）
-    private String shoppingCarData = "{\n" +
-            "    \"code\": 200,\n" +
-            "    \"mData\": [\n" +
-            "        {\n" +
-            "            \"goodsBeans\": [\n" +
-            "                {\n" +
-            "                    \"goodsId\": \"111111\",\n" +
-            "                    \"goodsImage\": \"http://pic.58pic.com/58pic/15/62/69/34K58PICbmZ_1024.jpg\",\n" +
-            "                    \"goodsName\": \"JAVA核心技术卷(第二卷)(平装)\",\n" +
-            "                    \"goodsNum\": \"1\",\n" +
-            "                    \"goodsPrice\": \"18.00\"\n" +
-            "                }\n" +
-            "            ],\n" +
-            "            \"stroreId\": \"1\",\n" +
-            "            \"storeName\": \"一号小书店\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"goodsBeans\": [\n" +
-            "                {\n" +
-            "                    \"goodsId\": \"222221\",\n" +
-            "                    \"goodsImage\": \"http://file06.16sucai.com/2016/0511/9711205e4c003182edeed83355e6f1c7.jpg\",\n" +
-            "                    \"goodsName\": \"GreenDao的使用\",\n" +
-            "                    \"goodsNum\": \"2\",\n" +
-            "                    \"goodsPrice\": \"28.00\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"goodsId\": \"222222\",\n" +
-            "                    \"goodsImage\": \"http://img01.taopic.com/150424/240473-1504240U13615.jpg\",\n" +
-            "                    \"goodsName\": \"时间简史\",\n" +
-            "                    \"goodsNum\": \"2\",\n" +
-            "                    \"goodsPrice\": \"228.00\"\n" +
-            "                }\n" +
-            "            ],\n" +
-            "            \"stroreId\": \"2\",\n" +
-            "            \"storeName\": \"二号中书店\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"goodsBeans\": [\n" +
-            "                {\n" +
-            "                    \"goodsId\": \"333331\",\n" +
-            "                    \"goodsImage\": \"http://pic22.nipic.com/20120718/8002769_100147127333_2.jpg\",\n" +
-            "                    \"goodsName\": \"心的重建\",\n" +
-            "                    \"goodsNum\": \"3\",\n" +
-            "                    \"goodsPrice\": \"38.00\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"goodsId\": \"333332\",\n" +
-            "                    \"goodsImage\": \"http://pic.58pic.com/58pic/14/71/50/40e58PICy54_1024.jpg\",\n" +
-            "                    \"goodsName\": \"专业课本\",\n" +
-            "                    \"goodsNum\": \"3\",\n" +
-            "                    \"goodsPrice\": \"338.00\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"goodsId\": \"333333\",\n" +
-            "                    \"goodsImage\": \"http://img01.taopic.com/150518/318750-15051PS40671.jpg\",\n" +
-            "                    \"goodsName\": \"Android Kotlin基本使用\",\n" +
-            "                    \"goodsNum\": \"3\",\n" +
-            "                    \"goodsPrice\": \"3.80\"\n" +
-            "                }\n" +
-            "            ],\n" +
-            "            \"stroreId\": \"3\",\n" +
-            "            \"storeName\": \"三号大书店\"\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}";
-
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, LikeGoodsAdapter.OnItemClickLongCallBack, ItemLongClickMaskHelper.ItemMaskClickListener {
+    private Toolbar tbTitle;//标题栏
+    private ImageView ivAllSelet;//底部全选
+    private ImageView ivSelectAll;//全选按钮
+    private TextView tvPrice;//价钱
+    private Button btJiesuan;//结算
+    private Button btDelete;//删除
+    private ExpandableListView elList;//列表数据
+    private String mResult = null;
+    private RecyclerView rvLikeList;//喜欢的列表
+    private LikeGoodsAdapter mLikeGoodsAdapter;//喜欢列表的适配器
+    private List<LikeGoodsBean> mLikeData = new ArrayList<>();//喜欢的数据
+    private TextView tvAdShow;//展示广告的文字
+    private TextView tvEdit;//管理按钮
+    private CollapsingToolbarLayout ctlToolbarTitle;//折叠式标题栏
+    private AppBarLayout appBarLayout;//滑动标题栏
+    private TextView tvShoppingCar;//购物车字
+    private TextView tvShoppingCarHide;//隐藏的购物车字
+    private ItemLongClickMaskHelper mMaskHelper;//长按的辅助类
+    private int mItemLongClickPosition;
+    private String mShoppingCarData; //模拟的购物车数据（实际开发中使用后台返回的数据）
     private List<ShoppingDataBean.DataBean> mData;
-    private ShoppingAdapter shoppingAdapter;
+    private ShoppingAdapter mShoppingAdapter;//适配器
     private Context mContext;
 
     @Override
@@ -117,37 +70,150 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
+        getServerResult();
         initView();
         initExpandListView();
         getDataFromServer();
         initData();
+        initRecyclerViewData();
+        initRecyclerView();
+        appOnClickListener();
 
     }
+
     private void initView() {
-        tb_title = findViewById(R.id.toolbar);
-        tb_title.setTitle("");
-        setSupportActionBar(tb_title);
-        iv_all_selet = findViewById(R.id.iv_select);
-        iv_select_all = findViewById(R.id.iv_select);
-        tv_price = findViewById(R.id.tv_price);
-        bt_jiesuan = findViewById(R.id.bt_jiesuan);
-        bt_delete = findViewById(R.id.bt_delete);
-        el_list=findViewById(R.id.el_list);
+        tbTitle = findViewById(R.id.toolbar);
+        tbTitle.setTitle("");
+        setSupportActionBar(tbTitle);
+        ivAllSelet = findViewById(R.id.iv_select);
+        ivSelectAll = findViewById(R.id.iv_select);
+        tvPrice = findViewById(R.id.tv_price);
+        btJiesuan = findViewById(R.id.bt_jiesuan);
+        btDelete = findViewById(R.id.bt_delete);
+        elList = findViewById(R.id.el_list);
+        elList.setGroupIndicator(null);
+        rvLikeList = findViewById(R.id.rv_list);
+        tvAdShow = findViewById(R.id.tv_ad_show);
+        ImmersionBar.with(this).statusBarColor(R.color.colorAction).init();
+        tvEdit = findViewById(R.id.tv_edit);
+        tvEdit.setOnClickListener(this);
+        ctlToolbarTitle = findViewById(R.id.col_Layout);
+        appBarLayout = findViewById(R.id.appbar);
+        tvShoppingCar = findViewById(R.id.tv_shopping_car);
+        tvShoppingCarHide = findViewById(R.id.tv_shoping_gone);
+    }
+
+    private String getServerResult() {
+
+        mShoppingCarData = "{\n" +
+                "    \"code\": 200,\n" +
+                "    \"mData\": [\n" +
+                "        {\n" +
+                "            \"goodsBeans\": [\n" +
+                "                {\n" +
+                "                    \"goodsId\": \"111111\",\n" +
+                "                    \"goodsImage\": \"http://file06.16sucai.com/2016/0511/9711205e4c003182edeed83355e6f1c7.jpg\",\n" +
+                "                    \"goodsName\": \"JAVA核心技术卷(第二卷)(平装)\",\n" +
+                "                    \"goodsNum\": \"1\",\n" +
+                "                    \"goodsNumAll\": \"3\",\n" +
+                "                    \"goodsPrice\": \"18.00\"\n" +
+                "                }\n" +
+                "            ],\n" +
+                "            \"stroreId\": \"1\",\n" +
+                "            \"storeName\": \"一号小书店\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"goodsBeans\": [\n" +
+                "                {\n" +
+                "                    \"goodsId\": \"222221\",\n" +
+                "                    \"goodsImage\": \"http://file06.16sucai.com/2016/0511/9711205e4c003182edeed83355e6f1c7.jpg\",\n" +
+                "                    \"goodsName\": \"GreenDao的使用\",\n" +
+                "                    \"goodsNum\": \"2\",\n" +
+                "                    \"goodsNumAll\": \"3\",\n" +
+                "                    \"goodsPrice\": \"28.00\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"goodsId\": \"222222\",\n" +
+                "                    \"goodsImage\": \"http://file06.16sucai.com/2016/0511/9711205e4c003182edeed83355e6f1c7.jpg\",\n" +
+                "                    \"goodsName\": \"时间简史\",\n" +
+                "                    \"goodsNum\": \"2\",\n" +
+                "                    \"goodsNumAll\": \"3\",\n" +
+                "                    \"goodsPrice\": \"228.00\"\n" +
+                "                }\n" +
+                "            ],\n" +
+                "            \"stroreId\": \"2\",\n" +
+                "            \"storeName\": \"二号中书店\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"goodsBeans\": [\n" +
+                "                {\n" +
+                "                    \"goodsId\": \"333331\",\n" +
+                "                    \"goodsImage\": \"http://pic22.nipic.com/20120718/8002769_100147127333_2.jpg\",\n" +
+                "                    \"goodsName\": \"心的重建\",\n" +
+                "                    \"goodsNum\": \"3\",\n" +
+                "                    \"goodsNumAll\": \"3\",\n" +
+                "                    \"goodsPrice\": \"38.00\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"goodsId\": \"333332\",\n" +
+                "                    \"goodsImage\": \"http://file06.16sucai.com/2016/0511/9711205e4c003182edeed83355e6f1c7.jpg\",\n" +
+                "                    \"goodsName\": \"专业课本\",\n" +
+                "                    \"goodsNum\": \"3\",\n" +
+                "                    \"goodsNumAll\": \"3\",\n" +
+                "                    \"goodsPrice\": \"338.00\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"goodsId\": \"333333\",\n" +
+                "                    \"goodsImage\": \"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1565257038293&di=37896fd9ac8fbd985fbc017dab398351&imgtype=0&src=http%3A%2F%2Fpic2.zhimg.com%2Fv2-9bfd84bde84525954f32a002d100a981_b.jpg\",\n" +
+                "                    \"goodsName\": \"Android Kotlin基本使用\",\n" +
+                "                    \"goodsNum\": \"0\",\n" +
+                "                    \"goodsNumAll\": \"0\",\n" +
+                "                    \"goodsPrice\": \"3.80\"\n" +
+                "                }\n" +
+                "            ],\n" +
+                "            \"stroreId\": \"3\",\n" +
+                "            \"storeName\": \"三号大书店\"\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
+        return mShoppingCarData;
+    }
+
+    /**
+     * 折叠式标题栏的监听事件
+     */
+
+    public void appOnClickListener() {
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.BaseOnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
+                if (i == 0) {
+                    tvShoppingCar.setVisibility(View.VISIBLE);
+                    tvShoppingCarHide.setVisibility(View.INVISIBLE);
+
+                } else {
+                    tvShoppingCar.setVisibility(View.INVISIBLE);
+                    tvShoppingCarHide.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+
     }
 
     /**
      * 初始化展示列表
      */
-    public void  initExpandListView(){
-        shoppingAdapter = new ShoppingAdapter(mContext, iv_all_selet, iv_select_all, bt_jiesuan, bt_delete, tv_price);
-        el_list.setAdapter(shoppingAdapter);
-        shoppingAdapter.setChangeCountListener(new ShoppingAdapter.ChangeCountListener() {
+    public void initExpandListView() {
+        mShoppingAdapter = new ShoppingAdapter(mContext, ivAllSelet, ivSelectAll, btJiesuan, btDelete, tvPrice);
+        elList.setAdapter(mShoppingAdapter);
+        mShoppingAdapter.setChangeCountListener(new ShoppingAdapter.ChangeCountListener() {
             @Override
             public void changeCount(String goodsId) {
 
             }
         });
-        shoppingAdapter.setOnDeleteListener(new ShoppingAdapter.OnDeleteListener() {
+        mShoppingAdapter.setOnDeleteListener(new ShoppingAdapter.OnDeleteListener() {
             @Override
             public void onDelete() {
                 initDelete();
@@ -158,19 +224,20 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 初始化列表数据
+     *
      * @param mData
      */
 
     private void initExpandableListViewData(List<ShoppingDataBean.DataBean> mData) {
         if (mData != null && mData.size() > 0) {
             //刷新数据时，保持当前位置
-            shoppingAdapter.setmData(mData);
+            mShoppingAdapter.setmData(mData);
             //使所有组展开
-            for (int i = 0; i < shoppingAdapter.getGroupCount(); i++) {
-                el_list.expandGroup(i);
+            for (int i = 0; i < mShoppingAdapter.getGroupCount(); i++) {
+                elList.expandGroup(i);
             }
             //使组点击无效果
-            el_list.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            elList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
                 @Override
                 public boolean onGroupClick(ExpandableListView parent, View v,
                                             int groupPosition, long id) {
@@ -179,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     }
+
     /**
      * 初始化数据
      */
@@ -189,49 +257,9 @@ public class MainActivity extends AppCompatActivity {
          * 实际开发中，通过请求后台接口获取购物车数据并解析
          */
         Gson gson = new Gson();
-        ShoppingDataBean shoppingDataBean = gson.fromJson(shoppingCarData, ShoppingDataBean.class);
+        ShoppingDataBean shoppingDataBean = gson.fromJson(mShoppingCarData, ShoppingDataBean.class);
         mData = shoppingDataBean.getmData();
         initExpandableListViewData(mData);
-    }
-
-    /**
-     * 创建菜单栏
-     *
-     * @param menu
-     * @return
-     */
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        getMenuInflater().inflate(R.menu.menu_second, menu);
-        return true;
-    }
-    /**
-     * 菜单栏的点击事件
-     *
-     * @param item
-     * @return
-     */
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        switch (item.getItemId()) {
-
-            case R.id.bt_edit:
-
-                bt_delete.setVisibility(View.VISIBLE);
-                tv_price.setVisibility(View.INVISIBLE);
-
-                break;
-            case R.id.bt_complte:
-                bt_delete.setVisibility(View.GONE);
-                tv_price.setVisibility(View.VISIBLE);
-
-                break;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -270,7 +298,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
         if (hasSelect) {
             showDeleteDialog(datasTemp);
         } else {
@@ -278,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
 
     /**
      * 展示删除的dialog（可以自定义弹窗，不用删除即可）
@@ -324,7 +352,13 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public String getDataFromServer(){
+    /**
+     * 模拟从服务端请求数据
+     *
+     * @return
+     */
+
+    public String getDataFromServer() {
 
         Httputils.sendOkHttpRequest("http://172.17.5.183:8080/htdoc/shoppingCarData.json", new Callback() {
             @Override
@@ -334,12 +368,96 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                result =response.body().string();
-                Log.e("22222", "getDataFromServer: "+result);
+                mResult = response.body().string();
+                Log.e("22222", "getDataFromServer: " + mResult);
             }
         });
 
-       return result;
+        return mResult;
 
+    }
+
+//******************************************************************************8
+
+    /**
+     * 初始化话RecyclerView的适配器
+     */
+
+    public void initRecyclerView() {
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(mContext, 2);
+        rvLikeList.setLayoutManager(gridLayoutManager);
+        mMaskHelper = new ItemLongClickMaskHelper(this);
+        mMaskHelper.setMaskItemListener(this);
+        mLikeGoodsAdapter = new LikeGoodsAdapter(mContext, mLikeData);
+        mLikeGoodsAdapter.setOnItemClickLongCallBack(this);
+        rvLikeList.setAdapter(mLikeGoodsAdapter);
+    }
+
+
+    /**
+     * 初始化RecyclerView的数据
+     */
+    public void initRecyclerViewData() {
+        for (int i = 0; i < 8; i++) {
+            LikeGoodsBean likeGoodsBean1 = new LikeGoodsBean("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1565256972352&di=12f7ff897debe8842eb907774c02b84f&imgtype=0&src=http%3A%2F%2Fs9.knowsky.com%2Fbk%2F2012%2F201206030829144213.jpg", "JAVA入门", "￥20元");
+            mLikeData.add(likeGoodsBean1);
+            LikeGoodsBean likeGoodsBean2 = new LikeGoodsBean("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1565257038293&di=37896fd9ac8fbd985fbc017dab398351&imgtype=0&src=http%3A%2F%2Fpic2.zhimg.com%2Fv2-9bfd84bde84525954f32a002d100a981_b.jpg", "JavaWeb学习", "￥20元");
+            mLikeData.add(likeGoodsBean2);
+
+        }
+    }
+
+    /**
+     * 点击事件
+     *
+     * @param view
+     */
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+
+            case R.id.tv_edit:
+                if (tvEdit.getText().equals("管理")) {
+                    tvEdit.setText("完成");
+                    btDelete.setVisibility(View.VISIBLE);
+                    btJiesuan.setVisibility(View.GONE);
+                    tvPrice.setVisibility(View.GONE);
+                } else {
+                    tvEdit.setText("管理");
+                    btDelete.setVisibility(View.GONE);
+                    btJiesuan.setVisibility(View.VISIBLE);
+                    tvPrice.setVisibility(View.VISIBLE);
+                }
+
+                break;
+        }
+
+    }
+
+    //*****************************************************长按点击事件的回调
+
+    @Override
+    public void itemLongClick(View view, int postion) {
+        mItemLongClickPosition = postion;
+        mMaskHelper.setRootFrameLayout((FrameLayout) view);
+        ToastUtil.makeText(mContext, "我被点击了");
+        LogUtil.e("sss", "被点击了");
+
+    }
+
+    /**
+     * 长按的回调的方法
+     */
+    @Override
+    public void findSame() {
+        ToastUtil.makeText(mContext, "跳转到相似界面" + mItemLongClickPosition);
+
+    }
+
+    @Override
+    public void collect() {
+        ToastUtil.makeText(mContext, "收藏" + mItemLongClickPosition);
     }
 }

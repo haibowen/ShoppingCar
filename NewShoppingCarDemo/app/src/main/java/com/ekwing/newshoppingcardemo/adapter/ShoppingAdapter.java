@@ -30,7 +30,6 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
     private List<ShoppingDataBean.DataBean> mData;//店铺信息
     private boolean isSelectAll = false;//
     private double total_price;//总钱数
-
     private OnDeleteListener mDeleteListener;//商品删除的接口
     private ChangeCountListener mChangeCountListener;//商品数量改变的接口
 
@@ -42,7 +41,6 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
      * @param iv_select_all
      * @param bt_order
      * @param bt_delete
-
      * @param tv_toal_price
      * @param
      */
@@ -124,6 +122,7 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
         toDelete();
         return view;
     }
+
     private void toDelete() {
         bt_delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,11 +173,14 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
                 if (isSelect) {
                     String num = goodsBean.getGoodsNum();
                     String price = goodsBean.getGoodsPrice();
-                    double v = Double.parseDouble(num);
-                    double v1 = Double.parseDouble(price);
-                    total_price += v * v1;
-                    DecimalFormat decimalFormat = new DecimalFormat("0.00");
-                    tv_toal_price.setText("¥" + decimalFormat.format(total_price));
+                    if (num != "" && price != null) {
+                        double v = Double.parseDouble(num);///查一下相关的使用   Caused by: java.lang.NumberFormatException: empty String
+                        double v1 = Double.parseDouble(price);//
+                        total_price += v * v1;
+                        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                        tv_toal_price.setText("¥" + decimalFormat.format(total_price));
+                    }
+
                 }
             }
         }
@@ -190,35 +192,32 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 isSelectAll = !isSelectAll;
                 if (isSelectAll) {
-                    for (int j = 0; j < mData.size(); j++) {
-                        List<ShoppingDataBean.DataBean.GoodsBean> goodsBeans = mData.get(j).getGoodsBeans();
-
-                        for (int k = 0; k < goodsBeans.size(); k++) {
-                            ShoppingDataBean.DataBean.GoodsBean goodsBean = goodsBeans.get(k);
-                            goodsBean.setSelect(true);
-
-                        }
-
-                    }
+                    setGoodsSelect(isSelectAll);
 
                 } else {
 
-                    for (int j = 0; j < mData.size(); j++) {
-                        List<ShoppingDataBean.DataBean.GoodsBean> goodsBeans = mData.get(j).getGoodsBeans();
-                        for (int k = 0; k < goodsBeans.size(); k++) {
-                            ShoppingDataBean.DataBean.GoodsBean goodsBean = goodsBeans.get(k);
-                            goodsBean.setSelect(false);
-                        }
-
-                    }
+                    setGoodsSelect(isSelectAll);
                 }
                 notifyDataSetChanged();
             }
+
         });
     }
 
+    private void setGoodsSelect(boolean b) {
+        for (int j = 0; j < mData.size(); j++) {
+            List<ShoppingDataBean.DataBean.GoodsBean> goodsBeans = mData.get(j).getGoodsBeans();
+
+            for (int k = 0; k < goodsBeans.size(); k++) {
+                ShoppingDataBean.DataBean.GoodsBean goodsBean = goodsBeans.get(k);
+                goodsBean.setSelect(b);
+
+            }
+
+        }
+    }
+
     private void selectAllGoods() {
-        w:
         for (int k = 0; k < mData.size(); k++) {
             List<ShoppingDataBean.DataBean.GoodsBean> goods = mData.get(k).getGoodsBeans();
             for (int y = 0; y < goods.size(); y++) {
@@ -228,14 +227,14 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
                     isSelectAll = true;
                 } else {
                     isSelectAll = false;
-                    break w;//根据标记，跳出嵌套循环
+                    break;//根据标记，跳出嵌套循环
                 }
             }
         }
         if (isSelectAll) {
-           iv_select_all.setBackgroundResource(R.drawable.circle_all_item);
+            iv_select_all.setBackgroundResource(R.mipmap.select);
         } else {
-            iv_select_all.setBackgroundResource(R.drawable.circle_all);
+            iv_select_all.setBackgroundResource(R.mipmap.unselect);
         }
     }
 
@@ -259,10 +258,10 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
     private boolean getShopState(GroupViewHolder groupViewHolder, ShoppingDataBean.DataBean mDataBean) {
         final boolean isSelecShop = mDataBean.isSelect_shop();
         if (isSelecShop) {
-            groupViewHolder.ivSelect.setImageResource(R.drawable.circle_all_item);
+            groupViewHolder.ivSelect.setImageResource(R.mipmap.select);
 
         } else {
-            groupViewHolder.ivSelect.setImageResource(R.drawable.circle_all);
+            groupViewHolder.ivSelect.setImageResource(R.mipmap.unselect);
 
         }
         return isSelecShop;
@@ -270,6 +269,7 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
 
     /**
      * 所有商品被选中，店铺也被选中
+     *
      * @param mDataBean
      */
     private void selectShop(ShoppingDataBean.DataBean mDataBean) {
@@ -289,6 +289,7 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
 
     /**
      * 设置店铺的名字
+     *
      * @param i
      * @param groupViewHolder
      * @return
@@ -309,10 +310,12 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
 
         mDeleteListener = deleteListener;
     }
+
     //删除的回调
     public interface OnDeleteListener {
         void onDelete();
     }
+
     static class GroupViewHolder {
         ImageView ivSelect;
         TextView tv_store_name;
@@ -342,14 +345,17 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
         }
 
     }
+
     @Override
     public Object getChild(int i, int i1) {
         return mData.get(i).getGoodsBeans().get(i1);
     }
+
     @Override
     public long getChildId(int i, int i1) {
         return i1;
     }
+
     @Override
     public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
         ChildeViewHolder childeViewHolder;
@@ -359,9 +365,9 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
             childeViewHolder = new ChildeViewHolder(view);
             view.setTag(childeViewHolder);
 
-        }else {
+        } else {
 
-            childeViewHolder= (ChildeViewHolder) view.getTag();
+            childeViewHolder = (ChildeViewHolder) view.getTag();
 
         }
         final ShoppingDataBean.DataBean datasBean = mData.get(i);
@@ -382,6 +388,8 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
         String goods_price = goodsBean.getGoodsPrice();
         //商品数量
         String goods_num = goodsBean.getGoodsNum();
+        //商品的库存
+        String goods_num_all = goodsBean.getGoodsAllNum();
         //商品是否被选中
         final boolean isSelect = goodsBean.isSelect();
 
@@ -389,22 +397,34 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
                 .load(goods_image)
                 .into(childeViewHolder.iv_detail);
         //商品的初始化
-        initChildView(childeViewHolder, goods_name, goods_price, goods_num);
+        initChildView(childeViewHolder, goods_name, goods_price, goods_num, goods_num_all);
 
         //商品是否被选中
         if (isSelect) {
-            childeViewHolder.iv_select_child.setImageResource(R.drawable.circle_all_item);
+            childeViewHolder.iv_select_child.setImageResource(R.mipmap.select);
         } else {
-            childeViewHolder.iv_select_child.setImageResource(R.drawable.circle_all);
+            childeViewHolder.iv_select_child.setImageResource(R.mipmap.unselect);
         }
         //商品选择框的点击事件
         goodsToSelect(childeViewHolder, datasBean, goodsBean, isSelect);
+        //商品整体的点击事件
+        LongClickListener(childeViewHolder);
 
         //加号的点击事件
         addOnListener(childeViewHolder, goodsBean, goods_id);
         //减号的点击事件
         subOnListener(childeViewHolder, goodsBean, goods_id);
         return view;
+    }
+
+    private void LongClickListener(ChildeViewHolder childeViewHolder) {
+        childeViewHolder.ll_shopping_detail.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                ToastUtil.makeText(mContext, "我是长按事件，具体待实现的逻辑稍后添加");
+                return false;
+            }
+        });
     }
 
     private void subOnListener(ChildeViewHolder childeViewHolder, final ShoppingDataBean.DataBean.GoodsBean goodsBean, final String goods_id) {
@@ -416,9 +436,9 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
                 Integer integer = Integer.valueOf(num);
                 if (integer > 1) {
                     integer--;
-                    goodsBean.setGoodsNum(integer+"");
-                        /**
+                    goodsBean.setGoodsNum(integer + "");
                     /**
+                     /**
                      * 实际开发中，通过回调请求后台接口实现数量的加减
                      */
                     if (mChangeCountListener != null) {
@@ -440,7 +460,7 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
                 String num = goodsBean.getGoodsNum();
                 Integer integer = Integer.valueOf(num);
                 integer++;
-                goodsBean.setGoodsNum(integer+"");
+                goodsBean.setGoodsNum(integer + "");
                 notifyDataSetChanged();
 
 
@@ -468,7 +488,7 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
         });
     }
 
-    private void initChildView(ChildeViewHolder childeViewHolder, String goods_name, String goods_price, String goods_num) {
+    private void initChildView(ChildeViewHolder childeViewHolder, String goods_name, String goods_price, String goods_num, String goods_num_all) {
         if (goods_name != null) {
             childeViewHolder.tv_detail_content.setText(goods_name);
         } else {
@@ -483,7 +503,17 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
             childeViewHolder.tv_num_detail.setText(goods_num);
         } else {
             childeViewHolder.tv_num_detail.setText("");
+
         }
+        if (goods_num.equals("0")) {
+            childeViewHolder.tv_detail_content.setText("失效宝贝");
+            childeViewHolder.ll_shopping_detail.setBackgroundResource(R.color.colorHide);
+            childeViewHolder.iv_select_child.setVisibility(View.INVISIBLE);
+
+        }else {
+            childeViewHolder.iv_select_child.setVisibility(View.VISIBLE);
+        }
+
     }
 
     static class ChildeViewHolder {
@@ -494,6 +524,7 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
         TextView tv_num_detail;//商品数目
         ImageView iv_substract_child;//减少商品数量
         ImageView iv_add_child;//增加商品数量
+        LinearLayout ll_shopping_detail;//商品框
 
         public ChildeViewHolder(View view) {
             iv_select_child = view.findViewById(R.id.iv_select_child);
@@ -503,15 +534,19 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
             tv_num_detail = view.findViewById(R.id.tv_num_detail);
             iv_substract_child = view.findViewById(R.id.iv_subtract_child);
             iv_add_child = view.findViewById(R.id.iv_add_child);
+            ll_shopping_detail = view.findViewById(R.id.ll_shopping_detail);
         }
     }
-    public interface ChangeCountListener{
+
+    public interface ChangeCountListener {
         void changeCount(String goodsId);
     }
-    public void setChangeCountListener(ChangeCountListener changeCountListener){
-        mChangeCountListener=changeCountListener;
+
+    public void setChangeCountListener(ChangeCountListener changeCountListener) {
+        mChangeCountListener = changeCountListener;
 
     }
+
     @Override
     public boolean hasStableIds() {
         return false;

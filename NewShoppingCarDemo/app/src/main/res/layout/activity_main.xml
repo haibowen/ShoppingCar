@@ -1,83 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activity.MainActivity"
-    android:orientation="vertical">
-    <androidx.appcompat.widget.Toolbar
+    android:layout_height="match_parent">
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:id="@+id/toolbar"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-        <TextView
+        android:layout_height="150dp"
+        android:id="@+id/appbar"
+        android:background="#f97011">
+        <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="购物车"
-            android:gravity="center"
-            android:textColor="#fff"/>
-    </androidx.appcompat.widget.Toolbar>
-    <ExpandableListView
+            android:layout_height="match_parent"
+            android:id="@+id/col_Layout"
+            app:contentScrim="#f97011"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/tv_show_bg"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="20dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:text="这里的商品正在促销，快来查看吧"
+                    android:gravity="left|center"
+                    android:textColor="#EC1616"
+                    android:id="@+id/tv_ad_show"
+                    android:textSize="12sp"
+                    android:layout_marginLeft="8dp"/>
+            </LinearLayout>
+            <androidx.appcompat.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:id="@+id/toolbar"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="30dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="购物车"
+                        android:layout_gravity="left"
+                        android:gravity="left"
+                        android:textSize="16sp"
+                        android:id="@+id/tv_shopping_car"/>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="购物车展示"
+                        android:visibility="invisible"
+                        android:id="@+id/tv_shoping_gone"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:layout_marginRight="4dp"/>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="管理"
+                        android:id="@+id/tv_edit"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:layout_marginRight="4dp"/>
+                </LinearLayout>
+
+            </androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/el_list"
-        android:layout_below="@id/toolbar"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="60dp">
-    </ExpandableListView>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        android:background="#ffffff">
+        android:layout_marginBottom="60dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginLeft="15dp"
-            android:layout_centerVertical="true"
-            android:id="@+id/ll_detail">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/circle_all"
-                android:id="@+id/iv_select"/>
+            android:orientation="vertical">
+            <com.ekwing.newshoppingcardemo.view.MyExpandableListView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:dividerHeight="0dp"
+                android:id="@+id/el_list"
+                android:scrollbars="none"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layoutDirection="ltr">
+            </com.ekwing.newshoppingcardemo.view.MyExpandableListView>
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="全选"
-                android:layout_marginLeft="6dp"/>
-
+                android:text="❤你可能还喜欢---"
+                android:textSize="18sp"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/colorAction"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/rv_list"
+                android:background="#ECEBEB">
+            </androidx.recyclerview.widget.RecyclerView>
         </LinearLayout>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:text="总价:1234"
-            android:id="@+id/tv_price"
-            android:layout_toLeftOf="@id/bt_jiesuan"
-            android:layout_marginRight="14dp"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/bt_jiesuan"
-            android:layout_alignParentRight="true"
-            android:text="去结算"
-            android:layout_centerVertical="true"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/bt_delete"
-            android:layout_alignParentRight="true"
-            android:text="删除"
-            android:visibility="gone"
-            android:layout_centerVertical="true"/>
 
-
-    </RelativeLayout>
-
-</RelativeLayout>
+    </androidx.core.widget.NestedScrollView>
+    <include
+        layout="@layout/botome_select"
+        android:layout_gravity="bottom|end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

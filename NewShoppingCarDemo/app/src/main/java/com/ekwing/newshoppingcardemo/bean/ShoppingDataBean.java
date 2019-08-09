@@ -78,6 +78,15 @@ public class ShoppingDataBean implements Cloneable {
             private String goodsNum;//商品数目
             private String goodsPrice;//商品价格
             private boolean isSelect;//商品是否被选中
+            private String goodsAllNum;//商品的库存
+
+            public String getGoodsAllNum() {
+                return goodsAllNum;
+            }
+
+            public void setGoodsAllNum(String goodsAllNum) {
+                this.goodsAllNum = goodsAllNum;
+            }
 
             public String getGoodsId() {
                 return goodsId;
