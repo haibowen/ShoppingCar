@@ -1,13 +1,17 @@
 package com.ekwing.newshoppingcardemo.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -18,11 +22,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ekwing.newshoppingcardemo.R;
+import com.ekwing.newshoppingcardemo.adapter.InvidateAdapter;
 import com.ekwing.newshoppingcardemo.adapter.LikeGoodsAdapter;
 import com.ekwing.newshoppingcardemo.adapter.ShoppingAdapter;
 import com.ekwing.newshoppingcardemo.bean.LikeGoodsBean;
 import com.ekwing.newshoppingcardemo.bean.ShoppingDataBean;
 import com.ekwing.newshoppingcardemo.helper.ItemLongClickMaskHelper;
+import com.ekwing.newshoppingcardemo.utils.Constring;
 import com.ekwing.newshoppingcardemo.utils.Httputils;
 import com.ekwing.newshoppingcardemo.utils.LogUtil;
 import com.ekwing.newshoppingcardemo.utils.ToastUtil;
@@ -64,6 +70,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<ShoppingDataBean.DataBean> mData;
     private ShoppingAdapter mShoppingAdapter;//适配器
     private Context mContext;
+    private RecyclerView rvInvide;//失效的列表
+    private InvidateAdapter mInvidateAdapter;//失效列表的适配器
+    private List<LikeGoodsBean> mDataInvidata = new ArrayList<>();//失效类表数据
+    private TextView tvInvidat;//失效列表的字
+    private Bundle mDataBundle = new Bundle();//接收数据
+    private Handler mInvidataHandler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case Constring.INVIDATE_GOODS:
+
+                    mDataBundle = msg.getData();
+                    initRecyclerInvidateData();
+                    mInvidateAdapter.notifyDataSetChanged();
+                    mShoppingAdapter.notifyDataSetChanged();
+                    Log.e("34567", "handleMessage: " + mDataBundle.getString("pic"));
+                    break;
+
+
+            }
+
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +109,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initRecyclerViewData();
         initRecyclerView();
         appOnClickListener();
+        initRecyclerViewInvi();
 
     }
-
     private void initView() {
         tbTitle = findViewById(R.id.toolbar);
         tbTitle.setTitle("");
@@ -101,6 +132,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         appBarLayout = findViewById(R.id.appbar);
         tvShoppingCar = findViewById(R.id.tv_shopping_car);
         tvShoppingCarHide = findViewById(R.id.tv_shoping_gone);
+        rvInvide = findViewById(R.id.rv_invalid);//失效的列表
+        tvInvidat=findViewById(R.id.tv_inividata);
+
+
     }
 
     private String getServerResult() {
@@ -205,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 初始化展示列表
      */
     public void initExpandListView() {
-        mShoppingAdapter = new ShoppingAdapter(mContext, ivAllSelet, ivSelectAll, btJiesuan, btDelete, tvPrice);
+        mShoppingAdapter = new ShoppingAdapter(mContext, ivAllSelet, ivSelectAll, btJiesuan, btDelete, tvPrice, mInvidataHandler);
         elList.setAdapter(mShoppingAdapter);
         mShoppingAdapter.setChangeCountListener(new ShoppingAdapter.ChangeCountListener() {
             @Override
@@ -235,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //使所有组展开
             for (int i = 0; i < mShoppingAdapter.getGroupCount(); i++) {
                 elList.expandGroup(i);
+
             }
             //使组点击无效果
             elList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
@@ -406,6 +442,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mLikeData.add(likeGoodsBean2);
 
         }
+    }
+
+    /**
+     * 失效列表
+     */
+    public void initRecyclerViewInvi() {
+        mInvidateAdapter = new InvidateAdapter(mContext, mDataInvidata);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        rvInvide.setLayoutManager(layoutManager);
+        rvInvide.setAdapter(mInvidateAdapter);
+        mInvidateAdapter.notifyDataSetChanged();
+
+
+    }
+
+    /**
+     * 失效列表的数据
+     */
+    public void initRecyclerInvidateData() {
+        tvInvidat.setVisibility(View.VISIBLE);
+        String pic = mDataBundle.getString("pic");
+        String name = mDataBundle.getString("name");
+        LikeGoodsBean likeGoodsBean = new LikeGoodsBean(pic, name);
+        mDataInvidata.add(likeGoodsBean);
     }
 
     /**

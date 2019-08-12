@@ -1,6 +1,11 @@
 package com.ekwing.newshoppingcardemo.adapter;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
@@ -13,6 +18,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.ekwing.newshoppingcardemo.R;
 import com.ekwing.newshoppingcardemo.bean.ShoppingDataBean;
+import com.ekwing.newshoppingcardemo.utils.Constring;
+import com.ekwing.newshoppingcardemo.utils.DoubleFormateUtils;
 import com.ekwing.newshoppingcardemo.utils.ToastUtil;
 
 import java.text.DecimalFormat;
@@ -32,6 +39,7 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
     private double total_price;//总钱数
     private OnDeleteListener mDeleteListener;//商品删除的接口
     private ChangeCountListener mChangeCountListener;//商品数量改变的接口
+    private Handler mHandler;//结算的时候传递消息
 
     /**
      * 构造方法
@@ -45,13 +53,14 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
      * @param
      */
 
-    public ShoppingAdapter(Context mContext, ImageView iv_all_selet, ImageView iv_select_all, Button bt_order, Button bt_delete, TextView tv_toal_price) {
+    public ShoppingAdapter(Context mContext, ImageView iv_all_selet, ImageView iv_select_all, Button bt_order, Button bt_delete, TextView tv_toal_price,Handler handler) {
         this.mContext = mContext;
         this.iv_all_selet = iv_all_selet;
         this.iv_select_all = iv_select_all;
         this.bt_order = bt_order;
         this.bt_delete = bt_delete;
         this.tv_toal_price = tv_toal_price;
+        this.mHandler=handler;
 
     }
 
@@ -114,10 +123,10 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
         selectAllGoods();
         //底部全选的点击事件
         selectAllBotome();
-        //合计的计算
-        toCountPrice();
-        //去结算的点击事件
-        toJieSuan();
+        //计算交钱
+        toSetPrice();
+        //按钮去结算的点击事件
+        toJieSuan(mHandler);
         //删除商品
         toDelete();
         return view;
@@ -134,7 +143,7 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
         });
     }
 
-    private void toJieSuan() {
+    private void toJieSuan(final Handler handler) {
         bt_order.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -146,6 +155,23 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
                         boolean isSelect = goodsBean.isSelect();
                         if (isSelect) {
                             temp.add(goodsBean);
+                            if (goodsBean.getGoodsNum().equals("0")) {
+                                goodsBean.setSelect(false);
+                                temp.remove(goodsBean);//临时表里移除
+                                goodsBeans.remove(Integer.parseInt(goodsBean.getGoodsId()));//数据源里移除
+                                Log.e("0909090", "onClick: "+ goodsBean.getGoodsId() );
+                                notifyDataSetChanged();//刷新数据
+                                Message message = handler.obtainMessage();
+                                message.what = Constring.INVIDATE_GOODS;
+                                String arg1 = "pic";
+                                String arg2 = "name";
+                                Bundle bundle = new Bundle();
+                                bundle.putString(arg1,goodsBean.getGoodsImage());
+                                bundle.putString(arg2,goodsBean.getGoodsName());
+                                message.setData(bundle);
+                                handler.sendMessage(message);
+
+                            }
                         }
                     }
 
@@ -160,7 +186,7 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
         });
     }
 
-    private void toCountPrice() {
+    private void toSetPrice() {
         total_price = 0.0;
         tv_toal_price.setText("$0.00");
         for (int j = 0; j < mData.size(); j++) {
@@ -173,13 +199,11 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
                 if (isSelect) {
                     String num = goodsBean.getGoodsNum();
                     String price = goodsBean.getGoodsPrice();
-                    if (num != "" && price != null) {
-                        double v = Double.parseDouble(num);///查一下相关的使用   Caused by: java.lang.NumberFormatException: empty String
-                        double v1 = Double.parseDouble(price);//
-                        total_price += v * v1;
-                        DecimalFormat decimalFormat = new DecimalFormat("0.00");
-                        tv_toal_price.setText("¥" + decimalFormat.format(total_price));
-                    }
+                    double v = DoubleFormateUtils.stringToDouble(num);
+                    double v1 = DoubleFormateUtils.stringToDouble(price);
+                    total_price += v * v1;
+                    tv_toal_price.setText("￥" + DoubleFormateUtils.toSaveTwoNumber(total_price));
+                    tv_toal_price.setSingleLine(true);
 
                 }
             }
@@ -192,11 +216,11 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 isSelectAll = !isSelectAll;
                 if (isSelectAll) {
-                    setGoodsSelect(isSelectAll);
+                    setGoodsSelect(true);
 
                 } else {
 
-                    setGoodsSelect(isSelectAll);
+                    setGoodsSelect(false);
                 }
                 notifyDataSetChanged();
             }
@@ -217,7 +241,11 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
         }
     }
 
+    /**
+     * 着重研究一下这的写法
+     */
     private void selectAllGoods() {
+        w:
         for (int k = 0; k < mData.size(); k++) {
             List<ShoppingDataBean.DataBean.GoodsBean> goods = mData.get(k).getGoodsBeans();
             for (int y = 0; y < goods.size(); y++) {
@@ -227,7 +255,7 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
                     isSelectAll = true;
                 } else {
                     isSelectAll = false;
-                    break;//根据标记，跳出嵌套循环
+                    break w;//根据标记，跳出嵌套循环
                 }
             }
         }
@@ -378,6 +406,7 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
         //店铺是否在购物车中被选中
         final boolean isSelect_shop = datasBean.isSelect_shop();
         final ShoppingDataBean.DataBean.GoodsBean goodsBean = datasBean.getGoodsBeans().get(i1);
+        goodsBean.setGoodsId((String.valueOf(i1)));
         //商品图片
         String goods_image = goodsBean.getGoodsImage();
         //商品ID
@@ -505,14 +534,6 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
             childeViewHolder.tv_num_detail.setText("");
 
         }
-        if (goods_num.equals("0")) {
-            childeViewHolder.tv_detail_content.setText("失效宝贝");
-            childeViewHolder.ll_shopping_detail.setBackgroundResource(R.color.colorHide);
-            childeViewHolder.iv_select_child.setVisibility(View.INVISIBLE);
-
-        }else {
-            childeViewHolder.iv_select_child.setVisibility(View.VISIBLE);
-        }
 
     }
 
@@ -522,8 +543,8 @@ public class ShoppingAdapter extends BaseExpandableListAdapter {
         TextView tv_detail_content;//商品描述
         TextView tv_price;//商品价格
         TextView tv_num_detail;//商品数目
-        ImageView iv_substract_child;//减少商品数量
-        ImageView iv_add_child;//增加商品数量
+        TextView iv_substract_child;//减少商品数量
+        TextView iv_add_child;//增加商品数量
         LinearLayout ll_shopping_detail;//商品框
 
         public ChildeViewHolder(View view) {

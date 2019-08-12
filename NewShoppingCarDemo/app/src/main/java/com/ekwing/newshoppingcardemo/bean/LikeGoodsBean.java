@@ -6,6 +6,11 @@ public class LikeGoodsBean {
     private String mDetialText;//商品的详情
     private String mDetailPrice;//商品的价格
 
+    public LikeGoodsBean(String mImagId, String mDetialText) {
+        this.mImagId = mImagId;
+        this.mDetialText = mDetialText;
+    }
+
     public LikeGoodsBean(String mImagId, String mDetialText, String mDetailPrice) {
         this.mImagId = mImagId;
         this.mDetialText = mDetialText;

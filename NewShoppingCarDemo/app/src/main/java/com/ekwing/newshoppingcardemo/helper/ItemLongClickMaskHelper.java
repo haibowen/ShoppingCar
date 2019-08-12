@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.ekwing.newshoppingcardemo.R;
 import com.ekwing.newshoppingcardemo.view.ItemMaskLayout;
+import com.ekwing.newshoppingcardemo.view.RippleLayout;
 
 public class ItemLongClickMaskHelper {
 
@@ -40,8 +41,13 @@ public class ItemLongClickMaskHelper {
 //        int dip45 = dip2px(context, 45);
         int dip55 = dip2px(context, 65);
         int dip45 = dip2px(context, -40);
-        ObjectAnimator mAnim = ObjectAnimator.ofFloat(btnFindSame, "translationX", -dip55, -dip45);
-        mAnimSet.play(mAnim).with(ObjectAnimator.ofFloat(btnCollect, "translationX", dip55, dip45));
+        ObjectAnimator mAnimRipp = ((RippleLayout)mMaskItemLayout.findViewById(R.id.rp_bg)).getRadiusAnimator();
+        mAnimSet.play(mAnimRipp)
+                .with(ObjectAnimator.ofFloat(btnCollect, "translationX", 0, -dip55))
+                .with(ObjectAnimator.ofFloat(btnFindSame, "translationX", 0, dip55));
+        ObjectAnimator mAnim = ObjectAnimator.ofFloat(btnCollect, "translationX", -dip55, -dip45);
+        mAnimSet.play(mAnim).with(ObjectAnimator.ofFloat(btnFindSame, "translationX", dip55, dip45));
+        mAnimSet.play(mAnimRipp).before(mAnim);
         mAnimSet.setInterpolator(new AccelerateDecelerateInterpolator());
         mAnimSet.setDuration(100);
     }
